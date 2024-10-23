@@ -25,7 +25,6 @@ const isValid = (formElement, inputElement, config) => {
     inputElement.setCustomValidity("");
   }
   if (!inputElement.validity.valid) {
-  
     showInputError(
       formElement,
       inputElement,
@@ -83,10 +82,14 @@ export const enableValidation = (config) => {
 
 //функция удаляет класс с ошибкой (очищает валидацию)
 export const clearValidation = (popup, config) => {
-  const inputList = popup.querySelectorAll(".popup__input");
+  const inputList = Array.from(popup.querySelectorAll(config.inputSelector));
+  const buttonElement = popup.querySelector(config.submitButtonSelector);
+
   inputList.forEach((inputElement) => {
     hideInputError(popup, inputElement, config);
   });
+
+  if (config && buttonElement) {
+    toggleButtonState(inputList, buttonElement, config);
+  }
 };
-
-

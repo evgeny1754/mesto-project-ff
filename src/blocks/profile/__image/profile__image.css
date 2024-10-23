@@ -7,8 +7,9 @@
   border-radius: 50%;
   background-size: cover;
   background-position: center;
-  margin: 0 29px 0 0;
+  margin: 0 4px 0 0;
   transition: 0.3s;
+  padding: 4px 24px;
 }
 
 .profile__image:hover {

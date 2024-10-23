@@ -40,45 +40,34 @@ const popupImage = document.querySelector(".popup_type_image");
 const popupImagePicture = document.querySelector(".popup__image");
 const popupImageCaption = document.querySelector(".popup__caption");
 
-
 let meID;
-let newCards;
-let meName;
-let meAbout;
-let meAvatar;
+
+function renderProfileInfo({ name, about, avatar }) {
+  profileTitle.textContent = name;
+  profileDescription.textContent = about;
+  profileAvatar.src = avatar;
+}
+
+function renderCards(cards, userId) {
+  cards.forEach((cardData) => {
+    placesList.append(
+      createCard(
+        cardData,
+        userId,
+        openImage,
+        likeCallback,
+        deleteCallback,
+        cardTemplate
+      )
+    );
+  });
+}
 
 Promise.all([infoForMe(), getInitialCards()])
-  // записываем значения полученные из запроса в переменные
-  .then(([meInfo, newCard]) => {
+  .then(([meInfo, newCards]) => {
     meID = meInfo._id;
-    newCards = newCard;
-    meName = meInfo.name;
-    meAbout = meInfo.about;
-    meAvatar = meInfo.avatar;
-  })
-  // вставляем карточки на страницу
-  .then(() => {
-    newCards.forEach((cardData) => {
-      placesList.append(
-        createCard(
-          cardData,
-          meID,
-          openImage,
-          likeCallback,
-          deleteCallback,
-          cardTemplate
-        )
-      );
-    });
-  })
-  // отображаем информацию профиля полученную из запроса
-  .then(() => {
-    profileTitle.textContent = meName;
-    profileDescription.textContent = meAbout;
-  })
-  // отображаем аватар полученный из запроса
-  .then(() => {
-    profileAvatar.src = meAvatar;
+    renderProfileInfo(meInfo); // Отображаем данные профиля
+    renderCards(newCards, meID); // Отображаем карточки
   })
   .catch((err) => console.log(err));
 
@@ -88,30 +77,26 @@ function editInfoProfile() {
   formEditDescription.value = profileDescription.textContent;
 }
 
+const validationConfig = {
+  inputErrorClass: "popup__input_type_error",
+  errorClass: "popup__input-error_active",
+};
+
 // открытие попапа аватара
 profileAvatar.addEventListener("click", () => {
   openPopup(popupAvatar);
-  clearValidation(formAvatar, {
-    inputErrorClass: "popup__input_type_error",
-    errorClass: "popup__input-error_active",
-  });
+  clearValidation(formAvatar, validationConfig);
 });
 // открытие попапа редактирования
 popupEditOpen.addEventListener("click", () => {
   openPopup(popupEdit);
   editInfoProfile();
-  clearValidation(formEdit, {
-    inputErrorClass: "popup__input_type_error",
-    errorClass: "popup__input-error_active",
-  });
+  clearValidation(formEdit, validationConfig);
 });
 // открытие попапа создания карточки
 popupNewCardOpen.addEventListener("click", () => {
   openPopup(popupNewCard);
-  clearValidation(formAddCard, {
-    inputErrorClass: "popup__input_type_error",
-    errorClass: "popup__input-error_active",
-  });
+  clearValidation(formAddCard, validationConfig);
 });
 
 //функция записи ссылки на новый аватар после редактирования
@@ -119,7 +104,7 @@ function recordNewAvatar(evt) {
   evt.preventDefault();
   renderLoading(true, formAvatar);
   // отправка  отредактированной информации профиля на сервер
-  editAvatar(formEditLink)
+  editAvatar(formEditLink.value)
     .then((res) => {
       profileAvatar.src = res.avatar;
     })
@@ -213,31 +198,20 @@ const renderLoading = (isLoading, element) => {
 // функция отправляет запрос на постановку лайка и на удаление лайка
 // в зависимости от того, поставлен ли уже лайк. А потом обновляет количество лайков
 const likeCallback = (evt, cardId, cardLikesCounter) => {
-  const likeMethod = () => {
-    // если событие произошло на контейнере с классом активного лайка, то отправляем  запрос удаления лайка на сервер
-    if (evt.target.classList.contains("card__like-button_is-active")) {
-      deleteLikeServer(cardId)
-        // ессли запрос прошел успешно то обновляем количество лайков ипереключаем класс активного лайка
-        .then((res) => {
-          cardLikesCounter.textContent = res.likes.length;
-          evt.target.classList.toggle("card__like-button_is-active");
-        })
-        .catch((err) => {
-          console.log(err);
-        });
-    } else {
-      // иначе отправляем запрос на постановку лайка
-      putLikeServer(cardId)
-        .then((res) => {
-          cardLikesCounter.textContent = res.likes.length;
-          evt.target.classList.toggle("card__like-button_is-active");
-        })
-        .catch((err) => {
-          console.log(err);
-        });
-    }
-  };
-  likeMethod();
+  const likeMethod = evt.target.classList.contains(
+    "card__like-button_is-active"
+  )
+    ? deleteLikeServer
+    : putLikeServer;
+
+  likeMethod(cardId)
+    .then((res) => {
+      cardLikesCounter.textContent = res.likes.length;
+      evt.target.classList.toggle("card__like-button_is-active");
+    })
+    .catch((err) => {
+      console.log(err);
+    });
 };
 
 // колбек для удаление карточки

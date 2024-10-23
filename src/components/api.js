@@ -28,12 +28,12 @@ export const getInitialCards = () => {
   });
 };
 // отправка информации о новой аватарке на сервер
-export const editAvatar = (formEditLink) => {
+export const editAvatar = (value) => {
   return fetch(`${config.baseUrl}/users/me/avatar`, {
     method: "PATCH",
     headers: config.headers,
     body: JSON.stringify({
-      avatar: formEditLink.value,
+      avatar: value,
     }),
   }).then((res) => {
     return handleResponse(res);
