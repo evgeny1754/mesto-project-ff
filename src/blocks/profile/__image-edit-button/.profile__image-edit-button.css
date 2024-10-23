@@ -1,0 +1,15 @@
+.profile__image-edit-button {
+  position: absolute;
+  left: 50px;
+  width: 26px;
+  height: 26px;
+  background: url("../../../images/edit-icon.svg") center no-repeat;
+  border: none;
+  visibility: hidden;
+  z-index: 0;
+}
+
+.profile__image:hover + .profile__image-edit-button {
+  visibility: visible;
+  pointer-events: none;
+}
