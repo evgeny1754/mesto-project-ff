@@ -78,6 +78,10 @@ function editInfoProfile() {
 }
 
 const validationConfig = {
+  formSelector: ".popup__form",
+  inputSelector: ".popup__input",
+  submitButtonSelector: ".popup__button",
+  inactiveButtonClass: "popup__button_disabled",
   inputErrorClass: "popup__input_type_error",
   errorClass: "popup__input-error_active",
 };
@@ -176,14 +180,7 @@ formEdit.addEventListener("submit", recordNewInfoProfile);
 //добавляем карточку при нажатии кнопки сохранения
 formAddCard.addEventListener("submit", handleCreateCard);
 
-enableValidation({
-  formSelector: ".popup__form",
-  inputSelector: ".popup__input",
-  submitButtonSelector: ".popup__button",
-  inactiveButtonClass: "popup__button_disabled",
-  inputErrorClass: "popup__input_type_error",
-  errorClass: "popup__input-error_active",
-});
+enableValidation(validationConfig);
 
 // отрисовка загрузки при отправке запроса на сохранение
 const renderLoading = (isLoading, element) => {
